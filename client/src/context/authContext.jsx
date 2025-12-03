@@ -9,16 +9,17 @@ export function AuthProvider({ children }) {
   // Registrando usuário
   async function registerUser(nome, email, senha) {
     try {
-      await axios.post("http://localhost:4000/register", {
-        name: nome,
+      // CORREÇÃO: URL completa com /api/auth e porta 4000
+      await axios.post("http://localhost:4000/api/auth/register", {
+        nome,   // Enviando 'nome' conforme o backend espera (não 'name')
         email,
-        password: senha,
+        senha,  // Enviando 'senha' conforme o backend espera (não 'password')
       });
 
       return true;
     } catch (error) {
       console.error("Erro ao registrar:", error);
-      alert("Erro ao registrar! Verifique os dados.");
+      alert("Erro ao registrar! Verifique se o servidor está rodando.");
       return false;
     }
   }
@@ -26,15 +27,18 @@ export function AuthProvider({ children }) {
   // Login
   async function login(email, senha) {
     try {
-      const response = await axios.post("http://localhost:4000/login", {
+      // CORREÇÃO: URL completa com /api/auth e porta 4000
+      const response = await axios.post("http://localhost:4000/api/auth/login", {
         email,
-        password: senha,
+        senha,
       });
 
-        setUser(response.data.user);
-        return true;
+      // Salva o token se necessário (opcional: localStorage.setItem('token', response.data.token))
+      setUser(response.data.user);
+      return true;
 
     } catch (error) {
+      console.error("Erro ao logar:", error);
       alert("Email ou senha incorretos!");
       return false;
     }

@@ -1,16 +1,15 @@
 // server/src/config/db.js
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const mongoose = require('mongoose');
 
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 3306,
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '0000',
-  database: process.env.DB_NAME || 'financas_app',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-});
+const connectDB = async () => {
+  try {
+    // A string de conexão do Mongo (pode estar no .env como MONGO_URI)
+    const conn = await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/financas_app');
+    console.log(`MongoDB Conectado: ${conn.connection.host}`);
+  } catch (error) {
+    console.error(`Erro: ${error.message}`);
+    process.exit(1);
+  }
+};
 
-module.exports = pool;
+module.exports = connectDB;

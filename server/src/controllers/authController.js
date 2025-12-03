@@ -1,19 +1,22 @@
 // server/src/controllers/authController.js
-const userModel = require('../models/userModel');
+const User = require('../models/User'); // Importa o Modelo Mongoose
 const { hashPassword, comparePassword } = require('../utils/hash');
 const jwt = require('../utils/jwt');
 
 async function register(req, res, next) {
   try {
     const { nome, email, senha } = req.body;
-    if (!nome || !email || !senha) return res.status(400).json({ error: 'nome, email e senha são obrigatórios' });
+    if (!nome || !email || !senha) return res.status(400).json({ error: 'Preencha todos os campos' });
 
-    const exists = await userModel.findByEmail(email);
-    if (exists) return res.status(409).json({ error: 'E-mail já cadastrado' });
+    // Verifica se já existe
+    const userExists = await User.findOne({ email });
+    if (userExists) return res.status(409).json({ error: 'E-mail já cadastrado' });
 
+    // Cria usuário
     const senhaHash = await hashPassword(senha);
-    const user = await userModel.createUser({ nome, email, senhaHash });
-    res.status(201).json(user);
+    const user = await User.create({ nome, email, senha: senhaHash });
+
+    res.status(201).json({ id: user._id, nome: user.nome, email: user.email });
   } catch (err) {
     next(err);
   }
@@ -22,17 +25,19 @@ async function register(req, res, next) {
 async function login(req, res, next) {
   try {
     const { email, senha } = req.body;
-    if (!email || !senha) return res.status(400).json({ error: 'email e senha são obrigatórios' });
-
-    const user = await userModel.findByEmail(email);
+    
+    // Busca usuário
+    const user = await User.findOne({ email });
     if (!user) return res.status(401).json({ error: 'Credenciais inválidas' });
 
+    // Verifica senha
     const ok = await comparePassword(senha, user.senha);
     if (!ok) return res.status(401).json({ error: 'Credenciais inválidas' });
 
-    // criar token
-    const token = jwt.sign({ id: user.id, email: user.email, nome: user.nome });
-    res.json({ token, user: { id: user.id, nome: user.nome, email: user.email } });
+    // Gera token
+    const token = jwt.sign({ id: user._id, email: user.email, nome: user.nome });
+    
+    res.json({ token, user: { id: user._id, nome: user.nome, email: user.email } });
   } catch (err) {
     next(err);
   }

@@ -1,16 +1,30 @@
 // server/src/controllers/dashboardController.js
-const pool = require('../config/db');
+const Transaction = require('../models/Transaction');
+const mongoose = require('mongoose');
 
 async function getBalance(req, res, next) {
   try {
     const usuario_id = req.user.id;
-    const [rows] = await pool.execute(
-      `SELECT
-         SUM(CASE WHEN tipo='entrada' THEN valor ELSE -valor END) as saldo
-       FROM transacoes WHERE usuario_id = ?`,
-      [usuario_id]
-    );
-    res.json({ saldo: Number(rows[0].saldo || 0).toFixed(2) });
+
+    // Agregação para somar entradas e subtrair saídas
+    const result = await Transaction.aggregate([
+      { $match: { user: new mongoose.Types.ObjectId(usuario_id) } },
+      {
+        $group: {
+          _id: null,
+          totalEntrada: {
+            $sum: { $cond: [{ $eq: ["$tipo", "entrada"] }, "$valor", 0] }
+          },
+          totalSaida: {
+            $sum: { $cond: [{ $eq: ["$tipo", "saida"] }, "$valor", 0] }
+          }
+        }
+      }
+    ]);
+
+    const saldo = result.length > 0 ? (result[0].totalEntrada - result[0].totalSaida) : 0;
+    
+    res.json({ saldo: saldo.toFixed(2) });
   } catch (err) {
     next(err);
   }
@@ -19,18 +33,33 @@ async function getBalance(req, res, next) {
 async function summaryMonth(req, res, next) {
   try {
     const usuario_id = req.user.id;
-    const year = req.query.year || new Date().getFullYear();
-    const month = req.query.month || (new Date().getMonth() + 1);
-    const [rows] = await pool.execute(
-      `SELECT tipo, SUM(valor) as total FROM transacoes
-       WHERE usuario_id = ? AND YEAR(data)=? AND MONTH(data)=?
-       GROUP BY tipo`,
-      [usuario_id, year, month]
-    );
+    const now = new Date();
+    // Primeiro dia do mês atual
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    // Primeiro dia do próximo mês
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+    const result = await Transaction.aggregate([
+      { 
+        $match: { 
+          user: new mongoose.Types.ObjectId(usuario_id),
+          data: { $gte: startOfMonth, $lt: endOfMonth } // Filtra pelo mês atual
+        } 
+      },
+      {
+        $group: {
+          _id: "$tipo", // Agrupa por 'entrada' ou 'saida'
+          total: { $sum: "$valor" }
+        }
+      }
+    ]);
+
+    // Formata para o front-end: { entrada: "100.00", saida: "50.00" }
     const summary = { entrada: 0, saida: 0 };
-    for (const r of rows) {
-      summary[r.tipo] = Number(r.total).toFixed(2);
-    }
+    result.forEach(item => {
+      summary[item._id] = item.total.toFixed(2);
+    });
+
     res.json(summary);
   } catch (err) {
     next(err);
