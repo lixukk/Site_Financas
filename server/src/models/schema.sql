@@ -1,0 +1,31 @@
+-- server/src/models/schema.sql
+CREATE DATABASE IF NOT EXISTS financas_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE financas_app;
+
+CREATE TABLE IF NOT EXISTS usuarios (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  senha VARCHAR(255) NOT NULL,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS categorias (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nome VARCHAR(100) NOT NULL,
+  tipo ENUM('entrada','saida') NOT NULL,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS transacoes (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  usuario_id INT NOT NULL,
+  categoria_id INT NOT NULL,
+  descricao VARCHAR(255),
+  valor DECIMAL(12,2) NOT NULL,
+  tipo ENUM('entrada','saida') NOT NULL,
+  data DATE NOT NULL,
+  criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+  FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT
+);
