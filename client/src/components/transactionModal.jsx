@@ -1,4 +1,4 @@
-// client/src/components/TransactionModal.jsx
+// client/src/components/transactionModal.jsx
 import { useState, useEffect } from "react";
 import api from "../api/api";
 
@@ -9,7 +9,6 @@ export default function TransactionModal({ isOpen, onClose, type, onSuccess }) {
   const [data, setData] = useState(new Date().toISOString().split("T")[0]);
   const [categorias, setCategorias] = useState([]);
 
-  // Busca categorias ao abrir o modal
   useEffect(() => {
     if (isOpen) {
       api.get(`/categories?tipo=${type}`).then((res) => {
@@ -21,16 +20,24 @@ export default function TransactionModal({ isOpen, onClose, type, onSuccess }) {
 
   async function handleSubmit(e) {
     e.preventDefault();
+
+    // --- VALIDAÇÃO DE VALOR POSITIVO ---
+    const valorNumerico = parseFloat(valor);
+    if (valorNumerico <= 0) {
+      alert("O valor deve ser maior que zero.");
+      return;
+    }
+
     try {
       await api.post("/transactions", {
-        valor: parseFloat(valor),
+        valor: valorNumerico, // Envia sempre positivo
         descricao,
         categoria_id: categoriaId,
-        tipo: type, // 'entrada' ou 'saida'
+        tipo: type,
         data,
       });
-      onSuccess(); // Atualiza o saldo no dashboard
-      onClose();   // Fecha o modal
+      onSuccess(); 
+      onClose();   
       setValor("");
       setDescricao("");
     } catch (err) {
@@ -53,10 +60,16 @@ export default function TransactionModal({ isOpen, onClose, type, onSuccess }) {
           <input
             type="number"
             step="0.01"
+            min="0.01" // Impede setas do teclado de descerem para negativo
             value={valor}
-            onChange={(e) => setValor(e.target.value)}
+            onChange={(e) => {
+              // Impede digitação manual de números negativos
+              const val = e.target.value;
+              if (val >= 0) setValor(val);
+            }}
             required
             autoFocus
+            placeholder="0.00"
           />
 
           <label>Descrição</label>

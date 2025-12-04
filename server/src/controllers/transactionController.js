@@ -1,19 +1,27 @@
 // server/src/controllers/transactionController.js
 const Transaction = require('../models/Transaction');
 
-// POST /transactions
+// POST /transactions (Criar nova transação)
 async function createTransaction(req, res, next) {
   try {
     const { categoria_id, descricao, valor, tipo, data } = req.body;
     const usuario_id = req.user.id; 
 
-    if (!categoria_id) return res.status(400).json({ error: 'Categoria é obrigatória' });
+    // Validação de campos obrigatórios
+    if (!categoria_id) {
+      return res.status(400).json({ error: 'Categoria é obrigatória' });
+    }
+
+    // --- NOVA VALIDAÇÃO: Impede valores negativos ou zero ---
+    if (!valor || valor <= 0) {
+      return res.status(400).json({ error: 'O valor da transação deve ser maior que zero.' });
+    }
 
     const transaction = await Transaction.create({
       user: usuario_id,
       category: categoria_id,
       descricao,
-      valor,
+      valor: Math.abs(valor), // Garante positivo
       tipo,
       data
     });
@@ -24,7 +32,7 @@ async function createTransaction(req, res, next) {
   }
 }
 
-// GET /transactions
+// GET /transactions (Listar todas)
 async function listTransactions(req, res, next) {
   try {
     const usuario_id = req.user.id;
@@ -48,7 +56,7 @@ async function listTransactions(req, res, next) {
   }
 }
 
-// GET /transactions/:id
+// GET /transactions/:id (Buscar uma específica)
 async function getTransaction(req, res, next) {
   try {
     const { id } = req.params;
@@ -65,7 +73,7 @@ async function getTransaction(req, res, next) {
   }
 }
 
-// PUT /transactions/:id
+// PUT /transactions/:id (Atualizar transação)
 async function updateTransaction(req, res, next) {
   try {
     const { id } = req.params;
@@ -76,10 +84,15 @@ async function updateTransaction(req, res, next) {
 
     if (!transaction) return res.status(404).json({ error: 'Transação não encontrada' });
 
+    // --- NOVA VALIDAÇÃO NA ATUALIZAÇÃO ---
+    if (valor !== undefined && valor <= 0) {
+      return res.status(400).json({ error: 'O valor da transação deve ser maior que zero.' });
+    }
+
     // Atualiza apenas os campos enviados
     if (categoria_id) transaction.category = categoria_id;
     if (descricao !== undefined) transaction.descricao = descricao;
-    if (valor) transaction.valor = valor;
+    if (valor) transaction.valor = Math.abs(valor);
     if (tipo) transaction.tipo = tipo;
     if (data) transaction.data = data;
 
@@ -91,7 +104,7 @@ async function updateTransaction(req, res, next) {
   }
 }
 
-// DELETE /transactions/:id
+// DELETE /transactions/:id (Remover transação)
 async function deleteTransaction(req, res, next) {
   try {
     const { id } = req.params;

@@ -28,7 +28,6 @@ export function AuthProvider({ children }) {
         senha,
       });
 
-      // --- CORREÇÃO IMPORTANTE AQUI ---
       // Salva o token no navegador para usar nas requisições
       localStorage.setItem("token", response.data.token);
       

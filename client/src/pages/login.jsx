@@ -26,7 +26,7 @@ export default function Login() {
       <form onSubmit={handleSubmit}>
         <input 
           placeholder="Email" 
-          value={email} // Boa prática: controlar o valor
+          value={email} // Controla o valor do input
           onChange={e => setEmail(e.target.value)} 
         />
         <input 
