@@ -56,7 +56,7 @@ export default function Dashboard() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         type={modalType}
-        onSuccess={fetchSaldo} // Recarrega o saldo ao salvar!
+        onSuccess={fetchSaldo} // Recarrega o saldo ao salvar
       />
     </div>
   );

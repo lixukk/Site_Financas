@@ -4,18 +4,14 @@ import api from "../api/api";
 export default function Orcamentos() {
   const [orcamentos, setOrcamentos] = useState([]);
   const [categorias, setCategorias] = useState([]);
-  
-  // Estados do formulário
   const [catId, setCatId] = useState("");
   const [valor, setValor] = useState("");
 
-  // Carregar dados ao abrir a página
   useEffect(() => {
     loadData();
-    // Carregar categorias apenas de SAÍDA para o select (pois orçamentos são para gastos)
     api.get("/categories?tipo=saida").then((res) => {
         setCategorias(res.data);
-        if (res.data.length > 0) setCatId(res.data[0].id); // Seleciona a primeira por padrão
+        if (res.data.length > 0) setCatId(res.data[0].id);
     });
   }, []);
 
@@ -30,7 +26,7 @@ export default function Orcamentos() {
     try {
       await api.post("/budgets", { categoria_id: catId, valor: parseFloat(valor) });
       setValor("");
-      loadData(); // Recarrega a lista para mostrar a nova meta
+      loadData();
       alert("Meta definida com sucesso!");
     } catch (err) {
       console.error(err);
@@ -53,10 +49,9 @@ export default function Orcamentos() {
     <div className="container">
       <h1>Metas de Gastos (Mensal)</h1>
 
-      {/* Formulário de Definição de Meta */}
       <div className="card" style={{ marginBottom: '2rem' }}>
         <h3>Definir Nova Meta</h3>
-        <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '1rem', alignItems: 'end' }}>
+        <form onSubmit={handleSubmit} className="budget-form">
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Categoria</label>
             <select value={catId} onChange={e => setCatId(e.target.value)} required>
@@ -73,19 +68,15 @@ export default function Orcamentos() {
                 required 
             />
           </div>
-          <button type="submit" style={{ marginBottom: '1rem' }}>Salvar Meta</button>
+          <button type="submit">Salvar Meta</button>
         </form>
       </div>
 
-      {/* Lista de Orçamentos com Barra de Progresso */}
       <div style={{ display: 'grid', gap: '1rem' }}>
         {orcamentos.map(orc => {
-          // Cálculo da porcentagem
           const porcentagem = Math.min((orc.gasto_atual / orc.limite) * 100, 100);
           const isEstourado = orc.gasto_atual > orc.limite;
-          
-          // Cores dinâmicas
-          const corBarra = isEstourado ? '#ef4444' : '#10b981'; // Vermelho ou Verde
+          const corBarra = isEstourado ? '#ef4444' : '#10b981';
           const corTexto = isEstourado ? '#ef4444' : '#6b7280';
 
           return (
@@ -106,14 +97,8 @@ export default function Orcamentos() {
                 </button>
               </div>
 
-              {/* Barra de Progresso Visual */}
               <div style={{ width: '100%', background: '#e5e7eb', height: '12px', borderRadius: '6px', overflow: 'hidden', marginTop: '10px' }}>
-                <div style={{ 
-                  width: `${porcentagem}%`, 
-                  background: corBarra, 
-                  height: '100%', 
-                  transition: 'width 0.5s ease' 
-                }} />
+                <div style={{ width: `${porcentagem}%`, background: corBarra, height: '100%', transition: 'width 0.5s ease' }} />
               </div>
               
               <div style={{ textAlign: 'right', fontSize: '0.85rem', marginTop: '5px', color: corTexto, fontWeight: '500' }}>
@@ -122,12 +107,6 @@ export default function Orcamentos() {
             </div>
           );
         })}
-        
-        {orcamentos.length === 0 && (
-            <p style={{ textAlign: 'center', color: '#888', marginTop: '2rem' }}>
-                Nenhuma meta definida. Adicione uma acima para controlar seus gastos!
-            </p>
-        )}
       </div>
     </div>
   );

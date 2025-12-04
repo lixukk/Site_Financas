@@ -2,27 +2,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Cores Claras (Light Mode) */
-  --primary: #4f46e5;       /* Indigo 600 */
-  --primary-hover: #4338ca; /* Indigo 700 */
-  --bg-body: #f3f4f6;       /* Gray 100 */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --bg-body: #f3f4f6;
   --bg-card: #ffffff;
-  --text-main: #1f2937;     /* Gray 800 */
-  --text-muted: #6b7280;    /* Gray 500 */
-  --border-color: #e5e7eb;  /* Gray 200 */
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-color: #e5e7eb;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
-/* Variáveis para Tema Escuro */
 [data-theme="dark"] {
-  --primary: #6366f1;       /* Indigo 500 */
-  --primary-hover: #818cf8; /* Indigo 400 */
-  --bg-body: #111827;       /* Gray 900 */
-  --bg-card: #1f2937;       /* Gray 800 */
-  --text-main: #f9fafb;     /* Gray 50 */
-  --text-muted: #9ca3af;    /* Gray 400 */
-  --border-color: #374151;  /* Gray 700 */
+  --primary: #6366f1;
+  --primary-hover: #818cf8;
+  --bg-body: #111827;
+  --bg-card: #1f2937;
+  --text-main: #f9fafb;
+  --text-muted: #9ca3af;
+  --border-color: #374151;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
 }
@@ -42,14 +40,12 @@ body {
   height: 100vh;
 }
 
-/* Links */
 a {
   text-decoration: none;
   color: inherit;
   transition: color 0.2s;
 }
 
-/* Inputs e Selects */
 input, select, textarea {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -68,7 +64,6 @@ input:focus, select:focus {
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
 }
 
-/* Botões */
 button {
   cursor: pointer;
   padding: 0.75rem 1.5rem;
@@ -79,7 +74,7 @@ button {
   font-weight: 600;
   font-size: 0.95rem;
   transition: background-color 0.2s, transform 0.1s;
-  width: 100%; /* Ocupa largura em forms */
+  width: 100%;
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -93,14 +88,13 @@ button:active {
   transform: scale(0.98);
 }
 
-/* Cards e Containers */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
 }
 
-.card, .form-container { /* Adicione classes aos seus componentes se precisar */
+.card, .form-container {
   background-color: var(--bg-card);
   padding: 2rem;
   border-radius: 1rem;
@@ -108,15 +102,22 @@ button:active {
   border: 1px solid var(--border-color);
 }
 
-/* Tabelas (Para a página de transações) */
+/* Tabela Responsiva */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   background-color: var(--bg-card);
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  margin-top: 1.5rem;
+  margin-top: 0;
+  min-width: 600px;
 }
 
 thead {
@@ -134,19 +135,13 @@ tbody tr:last-child td {
   border-bottom: none;
 }
 
-tbody tr:hover {
-  background-color: rgba(0,0,0,0.02);
-}
-
-/* Títulos */
 h1, h2, h3 {
   margin-bottom: 1.5rem;
   font-weight: 700;
   color: var(--text-main);
 }
-/* --- ADICIONE AO FINAL DO ARQUIVO --- */
 
-/* Dashboard Cards */
+/* Dashboard */
 .balance-card {
   text-align: center;
   padding: 3rem;
@@ -156,33 +151,25 @@ h1, h2, h3 {
   font-size: 3rem;
   font-weight: 700;
   margin-top: 1rem;
+  word-wrap: break-word;
 }
 
-.saldo-value.positive { color: #10b981; } /* Verde */
-.saldo-value.negative { color: #ef4444; } /* Vermelho */
+.saldo-value.positive { color: #10b981; }
+.saldo-value.negative { color: #ef4444; }
 
-/* Botões de Ação */
 .actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
 }
 
-.btn-income {
-  background-color: #10b981; /* Verde */
-  font-size: 1.1rem;
-  padding: 1.5rem;
-}
+.btn-income { background-color: #10b981; padding: 1.5rem; font-size: 1.1rem; }
 .btn-income:hover { background-color: #059669; }
 
-.btn-expense {
-  background-color: #ef4444; /* Vermelho */
-  font-size: 1.1rem;
-  padding: 1.5rem;
-}
+.btn-expense { background-color: #ef4444; padding: 1.5rem; font-size: 1.1rem; }
 .btn-expense:hover { background-color: #dc2626; }
 
-/* Modal Styles */
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -216,14 +203,21 @@ h1, h2, h3 {
   margin-bottom: 1.5rem;
 }
 
-.modal-header h3 { margin: 0; }
-
 .close-btn {
   background: transparent;
   color: var(--text-muted);
   width: auto;
   padding: 0.5rem;
   font-size: 1.5rem;
-  line-height: 1;
 }
 .close-btn:hover { background: transparent; color: var(--text-main); }
+
+/* Mobile Global */
+@media (max-width: 768px) {
+  .container { padding: 0; }
+  .actions-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .btn-income, .btn-expense { padding: 1rem; font-size: 1rem; }
+  h1 { font-size: 1.5rem; }
+  .saldo-value { font-size: 2rem; padding: 0 1rem; }
+  .balance-card { padding: 2rem 1rem; }
+}
