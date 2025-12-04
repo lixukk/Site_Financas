@@ -6,7 +6,7 @@ const authController = require('../controllers/authController');
 const categoryController = require('../controllers/categoryController');
 const transactionController = require('../controllers/transactionController');
 const dashboardController = require('../controllers/dashboardController');
-const budgetController = require('../controllers/budgetController'); // <--- 1. IMPORTAR ISTO
+const budgetController = require('../controllers/budgetController');
 const authMiddleware = require('../middlewares/auth');
 
 // auth
@@ -20,6 +20,7 @@ router.post('/categories', authMiddleware, categoryController.createCategory);
 // transactions
 router.post('/transactions', authMiddleware, transactionController.createTransaction);
 router.get('/transactions', authMiddleware, transactionController.listTransactions);
+router.delete('/transactions', authMiddleware, transactionController.resetTransactions); // <--- Rota de Reset
 router.get('/transactions/:id', authMiddleware, transactionController.getTransaction);
 router.put('/transactions/:id', authMiddleware, transactionController.updateTransaction);
 router.delete('/transactions/:id', authMiddleware, transactionController.deleteTransaction);
@@ -28,9 +29,9 @@ router.delete('/transactions/:id', authMiddleware, transactionController.deleteT
 router.get('/dashboard/balance', authMiddleware, dashboardController.getBalance);
 router.get('/dashboard/summary', authMiddleware, dashboardController.summaryMonth);
 
-// --- 2. ADICIONAR ESTAS ROTAS DE ORÇAMENTO ---
+// budgets
 router.post('/budgets', authMiddleware, budgetController.setBudget);
 router.get('/budgets', authMiddleware, budgetController.listBudgets);
-router.delete('/budgets/:id', authMiddleware, budgetController.deleteBudget); // :id aqui é o ID da Categoria
+router.delete('/budgets/:id', authMiddleware, budgetController.deleteBudget);
 
 module.exports = router;

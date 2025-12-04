@@ -1,18 +1,17 @@
 // server/src/controllers/transactionController.js
 const Transaction = require('../models/Transaction');
 
-// POST /transactions (Criar nova transação)
+// POST /transactions
 async function createTransaction(req, res, next) {
   try {
     const { categoria_id, descricao, valor, tipo, data } = req.body;
     const usuario_id = req.user.id; 
 
-    // Validação de campos obrigatórios
     if (!categoria_id) {
       return res.status(400).json({ error: 'Categoria é obrigatória' });
     }
 
-    // --- NOVA VALIDAÇÃO: Impede valores negativos ou zero ---
+    // Validação: Impede valores negativos ou zero
     if (!valor || valor <= 0) {
       return res.status(400).json({ error: 'O valor da transação deve ser maior que zero.' });
     }
@@ -32,7 +31,7 @@ async function createTransaction(req, res, next) {
   }
 }
 
-// GET /transactions (Listar todas)
+// GET /transactions
 async function listTransactions(req, res, next) {
   try {
     const usuario_id = req.user.id;
@@ -56,7 +55,7 @@ async function listTransactions(req, res, next) {
   }
 }
 
-// GET /transactions/:id (Buscar uma específica)
+// GET /transactions/:id
 async function getTransaction(req, res, next) {
   try {
     const { id } = req.params;
@@ -73,7 +72,7 @@ async function getTransaction(req, res, next) {
   }
 }
 
-// PUT /transactions/:id (Atualizar transação)
+// PUT /transactions/:id
 async function updateTransaction(req, res, next) {
   try {
     const { id } = req.params;
@@ -84,12 +83,11 @@ async function updateTransaction(req, res, next) {
 
     if (!transaction) return res.status(404).json({ error: 'Transação não encontrada' });
 
-    // --- NOVA VALIDAÇÃO NA ATUALIZAÇÃO ---
+    // Validação na atualização
     if (valor !== undefined && valor <= 0) {
       return res.status(400).json({ error: 'O valor da transação deve ser maior que zero.' });
     }
 
-    // Atualiza apenas os campos enviados
     if (categoria_id) transaction.category = categoria_id;
     if (descricao !== undefined) transaction.descricao = descricao;
     if (valor) transaction.valor = Math.abs(valor);
@@ -104,7 +102,7 @@ async function updateTransaction(req, res, next) {
   }
 }
 
-// DELETE /transactions/:id (Remover transação)
+// DELETE /transactions/:id (Apaga UMA)
 async function deleteTransaction(req, res, next) {
   try {
     const { id } = req.params;
@@ -120,10 +118,25 @@ async function deleteTransaction(req, res, next) {
   }
 }
 
+// DELETE /transactions (Apaga TUDO - Reset)
+async function resetTransactions(req, res, next) {
+  try {
+    const usuario_id = req.user.id;
+    
+    // Remove todas as transações do usuário logado
+    await Transaction.deleteMany({ user: usuario_id });
+
+    res.json({ message: 'Todas as transações foram apagadas com sucesso.' });
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   createTransaction,
   listTransactions,
   getTransaction,
   updateTransaction,
-  deleteTransaction
+  deleteTransaction,
+  resetTransactions 
 };
