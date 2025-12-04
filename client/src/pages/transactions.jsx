@@ -1,4 +1,3 @@
-// client/src/pages/transactions.jsx
 import { useState, useEffect } from "react";
 import api from "../api/api";
 
@@ -13,7 +12,6 @@ export default function Transacoes() {
     api.get("/transactions").then(res => setLista(res.data));
   }
 
-  // Deletar UMA transação
   async function handleDelete(id) {
     if (confirm("Tem certeza que deseja excluir esta transação?")) {
       try {
@@ -25,15 +23,16 @@ export default function Transacoes() {
     }
   }
 
-  // Deletar TODAS as transações (Reset)
   async function handleReset() {
+    if (lista.length === 0) return; // Impede clique se vazio
+
     const confirmacao = confirm("⚠️ ATENÇÃO: Isso apagará TODO o seu histórico de transações e o saldo voltará a zero.\n\nTem certeza absoluta?");
     
     if (confirmacao) {
       try {
         await api.delete("/transactions");
-        alert("Todas as transações foram apagadas.");
-        loadTransactions(); // Atualiza a lista para vazio
+        alert("Transações resetadas com sucesso!");
+        loadTransactions();
       } catch (err) {
         console.error(err);
         alert("Erro ao resetar transações.");
@@ -46,16 +45,20 @@ export default function Transacoes() {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
         <h1>Histórico de Transações</h1>
         
-        {/* Só mostra o botão se houver transações para apagar */}
-        {lista.length > 0 && (
-          <button 
-            onClick={handleReset}
-            style={{ backgroundColor: "#ef4444", width: "auto" }}
-            title="Apagar tudo e zerar saldo"
-          >
-            🗑️ Resetar Tudo
-          </button>
-        )}
+        {/* BOTÃO AGORA SEMPRE VISÍVEL (Mas muda de cor se vazio) */}
+        <button 
+          onClick={handleReset}
+          disabled={lista.length === 0}
+          style={{ 
+            backgroundColor: lista.length === 0 ? "#ccc" : "#ef4444", // Cinza se vazio, Vermelho se tiver dados
+            cursor: lista.length === 0 ? "not-allowed" : "pointer",
+            width: "auto",
+            opacity: lista.length === 0 ? 0.6 : 1
+          }}
+          title="Apagar tudo e zerar saldo"
+        >
+          🗑️ Resetar Tudo
+        </button>
       </div>
 
       <table>
@@ -97,7 +100,7 @@ export default function Transacoes() {
 
       {lista.length === 0 && (
         <p style={{ textAlign: "center", color: "#888", marginTop: "2rem" }}>
-          Nenhuma transação encontrada.
+          Nenhuma transação encontrada. Adicione saldo no Dashboard para testar!
         </p>
       )}
     </div>
